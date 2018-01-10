@@ -49,6 +49,18 @@ export default function AutocompleteDirective($document, $timeout, $sce, $q, tag
       }));
     };
 
+    let matchQuery = function(query, items) {
+      // IndexOf === 0 will match all items that have the query as the first character
+      // IndexOf > -1 will match all positions
+      const matched = items.filter(item => {
+        if (item && item.text && query) {
+          return item.text.toLocaleLowerCase().indexOf(query) === 0;
+        }
+        return true;
+      });
+      return matched;
+    };
+
     self.reset = () => {
       lastPromise = null;
 
@@ -82,6 +94,9 @@ export default function AutocompleteDirective($document, $timeout, $sce, $q, tag
 
         items = tiUtil.makeObjectArray(items.data || items, getTagId());
         items = getDifference(items, tags);
+        if (options.onlyShowMatched) {
+          items = matchQuery(query, items);
+        }
         self.items = items.slice(0, options.maxResultsToShow);
 
         if (self.items.length > 0) {
@@ -157,7 +172,8 @@ export default function AutocompleteDirective($document, $timeout, $sce, $q, tag
         loadOnEmpty: [Boolean, false],
         loadOnFocus: [Boolean, false],
         selectFirstMatch: [Boolean, true],
-        displayProperty: [String, '']
+        displayProperty: [String, ''],
+        onlyShowMatched: [Boolean, false]
       });
 
       $scope.suggestionList = new SuggestionList($scope.source, $scope.options, $scope.events);
