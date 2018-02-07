@@ -5,7 +5,7 @@
  * Copyright (c) 2013-2018 Michael Benford
  * License: MIT
  *
- * Generated at 2018-02-07 16:32:28 +0700
+ * Generated at 2018-02-07 17:17:40 +0700
  */
 (function (angular$1) {
 'use strict';
@@ -406,6 +406,9 @@ function TagsInputDirective($timeout, $document, $window, $q, tagsInputConfig, t
               return clipboardData ? clipboardData.getData('text/plain') : $window.clipboardData.getData('Text');
             };
             events.trigger('input-paste', $event);
+          },
+          click: function click() {
+            events.trigger('input-click');
           }
         },
         host: {
@@ -782,6 +785,12 @@ function AutocompleteDirective($document, $timeout, $sce, $q, tagsInputConfig, t
 
       tagsInput.on('tag-added tag-removed invalid-tag input-blur', function () {
         suggestionList.reset();
+      }).on('input-click', function () {
+        var value = tagsInput.getCurrentTagText();
+        var tags = tagsInput.getTags();
+        if (shouldLoadSuggestions(value)) {
+          suggestionList.load(value, tags);
+        }
       }).on('input-change', function (value) {
         var isTagAdded = tagsInput.getStateTagJustAdded();
         if (!isTagAdded && shouldLoadSuggestions(value)) {
@@ -1224,7 +1233,7 @@ function TemplateCacheRegister($templateCache) {
   $templateCache.put('ngTagsInput/auto-complete-match.html', "<span ng-bind-html=\"$highlight($getDisplayText())\"></span>");
   $templateCache.put('ngTagsInput/auto-complete.html', "<div class=\"autocomplete\" ng-if=\"suggestionList.visible\"><ul class=\"suggestion-list\"><li class=\"suggestion-item\" ng-repeat=\"item in suggestionList.items track by track(item)\" ng-class=\"getSuggestionClass(item, $index)\" ng-click=\"addSuggestionByIndex($index)\" ng-mouseenter=\"suggestionList.select($index)\"><ti-autocomplete-match scope=\"templateScope\" data=\"::item\"></ti-autocomplete-match></li></ul></div>");
   $templateCache.put('ngTagsInput/tag-item.html', "<span ng-bind=\"$getDisplayText()\"></span> <a class=\"remove-button\" ng-click=\"$removeTag()\" ng-bind=\"::$$removeTagSymbol\"></a>");
-  $templateCache.put('ngTagsInput/tags-input.html', "<div class=\"host\" tabindex=\"-1\" ng-click=\"eventHandlers.host.click()\" ti-transclude-append><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by track(tag)\" ng-class=\"getTagClass(tag, $index)\" ng-click=\"eventHandlers.tag.click(tag)\"><ti-tag-item scope=\"templateScope\" data=\"::tag\"></ti-tag-item></li></ul><input class=\"input\" autocomplete=\"off\" ng-model=\"newTag.text\" ng-model-options=\"{getterSetter: true}\" ng-keydown=\"eventHandlers.input.keydown($event)\" ng-focus=\"eventHandlers.input.focus($event)\" ng-blur=\"eventHandlers.input.blur($event)\" ng-paste=\"eventHandlers.input.paste($event)\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-disabled=\"disabled\" ti-bind-attrs=\"{type: options.type, placeholder: options.placeholder, tabindex: options.tabindex, spellcheck: options.spellcheck}\" ti-autosize></div></div>");
+  $templateCache.put('ngTagsInput/tags-input.html', "<div class=\"host\" tabindex=\"-1\" ng-click=\"eventHandlers.host.click()\" ti-transclude-append><div class=\"tags\" ng-class=\"{focused: hasFocus}\"><ul class=\"tag-list\"><li class=\"tag-item\" ng-repeat=\"tag in tagList.items track by track(tag)\" ng-class=\"getTagClass(tag, $index)\" ng-click=\"eventHandlers.tag.click(tag)\"><ti-tag-item scope=\"templateScope\" data=\"::tag\"></ti-tag-item></li></ul><input class=\"input\" autocomplete=\"off\" ng-model=\"newTag.text\" ng-model-options=\"{getterSetter: true}\" ng-keydown=\"eventHandlers.input.keydown($event)\" ng-focus=\"eventHandlers.input.focus($event)\" ng-blur=\"eventHandlers.input.blur($event)\" ng-paste=\"eventHandlers.input.paste($event)\" ng-trim=\"false\" ng-class=\"{'invalid-tag': newTag.invalid}\" ng-disabled=\"disabled\" ng-click=\"eventHandlers.input.click($event)\" ti-bind-attrs=\"{type: options.type, placeholder: options.placeholder, tabindex: options.tabindex, spellcheck: options.spellcheck}\"></div></div>");
 }
 
 angular$1.module('ngTagsInput', []).directive('tagsInput', TagsInputDirective).directive('tiTagItem', TagItemDirective).directive('autoComplete', AutocompleteDirective).directive('tiAutocompleteMatch', AutocompleteMatchDirective).directive('tiAutosize', AutosizeDirective).directive('tiBindAttrs', BindAttributesDirective).directive('tiTranscludeAppend', TranscludeAppendDirective).factory('tiUtil', UtilService).constant('tiConstants', Constants).provider('tagsInputConfig', TagsInputConfigurationProvider).run(TemplateCacheRegister);
