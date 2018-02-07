@@ -5,7 +5,7 @@
  * Copyright (c) 2013-2018 Michael Benford
  * License: MIT
  *
- * Generated at 2018-01-10 15:58:10 +0700
+ * Generated at 2018-02-07 16:32:28 +0700
  */
 (function (angular$1) {
 'use strict';
@@ -194,6 +194,13 @@ function TagsInputDirective($timeout, $document, $window, $q, tagsInputConfig, t
 
     self.clearSelection();
 
+    self.getStateTagJustAdded = function () {
+      return self.tagJustAdded;
+    };
+    self.setStateTagJustAdded = function (state) {
+      self.tagJustAdded = state;
+    };
+
     return self;
   }
 
@@ -273,6 +280,12 @@ function TagsInputDirective($timeout, $document, $window, $q, tagsInputConfig, t
           on: function on(name, handler) {
             $scope.events.on(name, handler, true);
             return this;
+          },
+          getStateTagJustAdded: function getStateTagJustAdded() {
+            return $scope.tagList.getStateTagJustAdded();
+          },
+          setStateTagJustAdded: function setStateTagJustAdded(state) {
+            return $scope.tagList.setStateTagJustAdded(state);
           }
         };
       };
@@ -411,6 +424,7 @@ function TagsInputDirective($timeout, $document, $window, $q, tagsInputConfig, t
       };
 
       events.on('tag-added', scope.onTagAdded).on('invalid-tag', scope.onInvalidTag).on('tag-removed', scope.onTagRemoved).on('tag-clicked', scope.onTagClicked).on('tag-added', function () {
+        tagList.setStateTagJustAdded(true);
         scope.newTag.text('');
       }).on('tag-added tag-removed', function () {
         scope.tags = tagList.getItems();
@@ -612,7 +626,8 @@ function AutocompleteDirective($document, $timeout, $sce, $q, tagsInputConfig, t
     };
 
     self.show = function () {
-      if (options.selectFirstMatch) {
+      // Only highlight when there is input
+      if (options.selectFirstMatch && self.query && self.query.length > 0) {
         self.select(0);
       } else {
         self.selected = null;
@@ -768,15 +783,19 @@ function AutocompleteDirective($document, $timeout, $sce, $q, tagsInputConfig, t
       tagsInput.on('tag-added tag-removed invalid-tag input-blur', function () {
         suggestionList.reset();
       }).on('input-change', function (value) {
-        if (shouldLoadSuggestions(value)) {
+        var isTagAdded = tagsInput.getStateTagJustAdded();
+        if (!isTagAdded && shouldLoadSuggestions(value)) {
           suggestionList.load(value, tagsInput.getTags());
         } else {
           suggestionList.reset();
         }
+        tagsInput.setStateTagJustAdded(false);
       }).on('input-focus', function () {
         var value = tagsInput.getCurrentTagText();
-        if (options.loadOnFocus && shouldLoadSuggestions(value)) {
-          suggestionList.load(value, tagsInput.getTags());
+        var tags = tagsInput.getTags();
+        // Only load the suggestion list when there is no tag yet
+        if (options.loadOnFocus && tags.length === 0 && shouldLoadSuggestions(value)) {
+          suggestionList.load(value, tags);
         }
       }).on('input-keydown', function (event) {
         var key = event.keyCode;
