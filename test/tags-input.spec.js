@@ -2075,7 +2075,9 @@ describe('tags-input directive', () => {
         getTags: jasmine.any(Function),
         getCurrentTagText: jasmine.any(Function),
         getOptions: jasmine.any(Function),
-        getTemplateScope: jasmine.any(Function)
+        getTemplateScope: jasmine.any(Function),
+        getStateTagJustAdded: jasmine.any(Function),
+        setStateTagJustAdded: jasmine.any(Function)
       });
     });
 

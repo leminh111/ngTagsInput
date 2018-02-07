@@ -37,7 +37,9 @@ describe('autoComplete directive', () => {
       getOptions: jasmine.createSpy().and.returnValue({
         displayProperty: 'text'
       }),
-      getTemplateScope: jasmine.createSpy()
+      getTemplateScope: jasmine.createSpy(),
+      getStateTagJustAdded: jasmine.createSpy(),
+      setStateTagJustAdded: jasmine.createSpy()
     };
 
     compile();

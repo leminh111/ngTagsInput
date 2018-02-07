@@ -72,8 +72,9 @@ export default function AutocompleteDirective($document, $timeout, $sce, $q, tag
     };
 
     self.show = () => {
-      if (options.selectFirstMatch) {
-        self.select(0);
+      // Only highlight when there is input
+      if (options.selectFirstMatch && self.query && self.query.length > 0) {
+          self.select(0);
       }
       else {
         self.selected = null;
@@ -231,17 +232,21 @@ export default function AutocompleteDirective($document, $timeout, $sce, $q, tag
           suggestionList.reset();
         })
         .on('input-change', value => {
-          if (shouldLoadSuggestions(value)) {
+          const isTagAdded = tagsInput.getStateTagJustAdded();
+          if (!isTagAdded && shouldLoadSuggestions(value)) {
             suggestionList.load(value, tagsInput.getTags());
           }
           else {
             suggestionList.reset();
           }
+          tagsInput.setStateTagJustAdded(false);
         })
         .on('input-focus', () => {
           let value = tagsInput.getCurrentTagText();
-          if (options.loadOnFocus && shouldLoadSuggestions(value)) {
-            suggestionList.load(value, tagsInput.getTags());
+          const tags = tagsInput.getTags();
+          // Only load the suggestion list when there is no tag yet
+          if (options.loadOnFocus && tags.length === 0 && shouldLoadSuggestions(value)) {
+            suggestionList.load(value, tags);
           }
         })
         .on('input-keydown', event => {

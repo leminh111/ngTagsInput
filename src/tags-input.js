@@ -147,6 +147,9 @@ export default function TagsInputDirective($timeout, $document, $window, $q, tag
 
     self.clearSelection();
 
+    self.getStateTagJustAdded = () => self.tagJustAdded;
+    self.setStateTagJustAdded = (state) => { self.tagJustAdded = state; };
+
     return self;
   }
 
@@ -227,7 +230,13 @@ export default function TagsInputDirective($timeout, $document, $window, $q, tag
         on: function(name, handler) {
           $scope.events.on(name, handler, true);
           return this;
-        }
+        },
+        getStateTagJustAdded: function() {
+          return $scope.tagList.getStateTagJustAdded();
+        },
+        setStateTagJustAdded: function(state) {
+          return $scope.tagList.setStateTagJustAdded(state);
+        },
       });
 
       this.registerTagItem = () => ({
@@ -366,6 +375,7 @@ export default function TagsInputDirective($timeout, $document, $window, $q, tag
         .on('tag-removed', scope.onTagRemoved)
         .on('tag-clicked', scope.onTagClicked)
         .on('tag-added', () => {
+          tagList.setStateTagJustAdded(true);
           scope.newTag.text('');
         })
         .on('tag-added tag-removed', () => {
