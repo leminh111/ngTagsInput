@@ -231,6 +231,13 @@ export default function AutocompleteDirective($document, $timeout, $sce, $q, tag
         .on('tag-added tag-removed invalid-tag input-blur', () => {
           suggestionList.reset();
         })
+        .on('input-click', () => {
+          let value = tagsInput.getCurrentTagText();
+          const tags = tagsInput.getTags();
+          if (shouldLoadSuggestions(value)) {
+            suggestionList.load(value, tags);
+          }
+        })
         .on('input-change', value => {
           const isTagAdded = tagsInput.getStateTagJustAdded();
           if (!isTagAdded && shouldLoadSuggestions(value)) {

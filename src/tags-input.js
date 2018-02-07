@@ -352,6 +352,9 @@ export default function TagsInputDirective($timeout, $document, $window, $q, tag
               return clipboardData ? clipboardData.getData('text/plain') : $window.clipboardData.getData('Text');
             };
             events.trigger('input-paste', $event);
+          },
+          click() {
+            events.trigger('input-click');
           }
         },
         host: {
